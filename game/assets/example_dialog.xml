@@ -1,0 +1,19 @@
+<DialogBox>
+    <Page>Hey kid.</Page>
+    <Page>Wanna buy some death sticks?
+        <Choice>
+            Sure. That sounds great!
+            <Page>Cool. They come in medium or large. Whaddia want?
+                <Choice>Medium is fine...</Choice>
+                <Choice>Large!</Choice>
+            </Page>
+        </Choice>
+        <Choice>
+            I'll pass.
+            <Page>
+                Then screw off!
+            </Page>
+        </Choice>
+    </Page>
+    <Page> See ya. </Page>
+</DialogBox>
