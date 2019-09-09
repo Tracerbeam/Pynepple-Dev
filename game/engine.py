@@ -17,7 +17,6 @@ def get_old_man():
 class OldMan(GameObject):
     image = get_old_man()
     available_interactions = { constants.INTERACTION_CHAT }
-    rect_options = { 'collider' }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

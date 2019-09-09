@@ -27,9 +27,14 @@ class Vector():
 #       context manager...
 class GameObject(pygame.sprite.Sprite):
     image = None
-    rect_options = dict()
+    # A set of offsets by which to adjust the sprite's rect in
+    # various situations. For example, collisions for various circumstances
+    # might be calculated at different locations on the sprite.
+    default_rect_options = dict()
     spritesheet = spritesheet_frame_map = animations = None
     available_interactions = set()
+    # number of pixels of the sprite that account for the 'ground' it's standing on
+    base_height = None
 
     def __init__(self, startx, starty):
         super().__init__()
@@ -47,13 +52,21 @@ class GameObject(pygame.sprite.Sprite):
         if not self.image:
             self.image = self.get_fallback_image()
 
-        if len(self.rect_options) == 0 or 'renderer' not in self.rect_options:
-            default_rect = pygame.Rect((0, 0), self.image.get_size())
-            self.rect_options = { 'renderer': default_rect }
-        initial_rect = list(self.rect_options.keys())[0]
-        self.current_rect = initial_rect
-        rect_size = self.rect_options[self.current_rect].size
-        self.rect = pygame.Rect((startx, starty), rect_size)
+        self.rect = pygame.Rect((startx, starty), self.image.get_size())
+        self.rect_options = self.default_rect_options.copy()
+        self.current_rect = 'renderer'
+        if 'renderer' not in self.rect_options:
+            self.rect_options = self.rect_options.copy()
+            self.rect_options['renderer'] = pygame.Rect((0, 0), self.rect.size)
+        if 'collider' not in self.rect_options:
+            self.rect_options = self.rect_options.copy()
+            coll_h = self.base_height
+            if not coll_h:
+                coll_h = (self.rect.height * 1) // 4
+            self.rect_options['collider'] = pygame.Rect(
+                (0, self.rect.height - coll_h),
+                (self.rect.width, coll_h)
+            )
 
     def get_fallback_image(self):
         fallback_image = pygame.Surface((128, 128))
@@ -115,14 +128,11 @@ class Player(GameObject):
         'walking_left': [17, 4, 18, 4],
         'walking_right': [13, 2, 14, 2]
     }
-    # A set of offsets by which to adjust the sprite's rect in
-    # various situations. For example, collisions for various circumstances
-    # might be calculated at different locations on the sprite.
-    rect_options = {
+    default_rect_options = {
         # Used for drawing the sprite to the screen
         'renderer': pygame.Rect(0, 0, 64, 64),
         # Used when walking into objects
-        'foot_collider': pygame.Rect(18, 59, 28, 5)
+        'foot_collider': pygame.Rect(18, 54, 28, 10)
     }
 
     def __init__(self, startx, starty):
