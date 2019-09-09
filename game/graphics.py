@@ -136,6 +136,7 @@ class TextBox():
     BACKGROUND_COLOR = (0, 0, 110)
     LOCATION = (16, 192)
     RESTING_PERIOD = 200
+    DEFAULT_MARGIN = (8, 8)
 
     def skip_if_resting(func):
         def wrapper(self, *args, **kwargs):
@@ -144,14 +145,17 @@ class TextBox():
             return func(self, *args, **kwargs)
         return wrapper
 
-    def __init__(self, pages=[], pagefile=None, text_margin=(0,0)):
+    def __init__(self, pages=[], pagefile=None, text_margin=None):
         self.pages = pages
         if pagefile:
             self.pages.extend(self.parse_pagefile(pagefile))
         self.current_page = 0
         self.time_displaying_page = 0
         self.text = ""
-        self.text_margin = text_margin
+        if text_margin == None:
+            self.text_margin = self.DEFAULT_MARGIN
+        else:
+            self.text_margin = text_margin
         self.background = pygame.Surface(self.SIZE)
         self.choice_stack = deque()
         # if we enter a question branch without totally exploring the dialog
@@ -168,13 +172,13 @@ class TextBox():
         pages = []
         for page_node in page_nodes:
             choices = { }
-            choice_page = page_node.find("Page")
+            terminal_choice_pages = page_node.findall("Page")
             choice_nodes = page_node.findall("Choice")
             for choice_node in choice_nodes:
-                if choice_page == None:
+                if len(terminal_choice_pages) == 0:
                     choice_pages = self._enumerate_pages(choice_node.findall("Page"))
                 else:
-                    choice_pages = [ TextBoxPage(raw_text=choice_page.text.strip()) ]
+                    choice_pages = self._enumerate_pages(terminal_choice_pages)
                 choices[choice_node.text.strip()] = choice_pages
             page = TextBoxPage(
                 raw_text = page_node.text.strip(),
@@ -204,7 +208,8 @@ class TextBox():
         leftmost, rightmost = x, self.background.get_width() - x
         bottommost = self.background.get_height() - y
         space = page.font.get_rect(' ')
-        carriage_return = page.line_separation + page.font.get_sized_height()
+        font_height = page.font.get_sized_height()
+        carriage_return = page.line_separation + font_height
         for word in self.text.split(' '):
             bounds = page.font.get_rect(word)
             if bounds.width + bounds.x + x > rightmost:
@@ -213,7 +218,10 @@ class TextBox():
             # TODO: based on the height of the text vs the font's actual height,
             #       calculate how far down you should render it to align all the
             #       words to a baseline, rather than having them top-aligned.
-            page.font.render_to(self.background, (x,y), None, fgcolor=(page.text_color))
+            page.font.render_to(
+                self.background, (x, y + (font_height - bounds.y)), None,
+                fgcolor=(page.text_color)
+            )
             x += bounds.width + space.width
 
     def draw_choices_to_background(self):
@@ -249,6 +257,7 @@ class TextBox():
             self.pages,
             self.rebound_depth
         ))
+        self.time_displaying_page = 0
         self.current_page = 0
         self.pages = page.make_choice()
 
