@@ -1,17 +1,19 @@
 <DialogBox>
     <Page>Hey kid.</Page>
-    <Page>Wanna buy some death sticks?
+    <Page>Wanna buy some candy?
         <Choice>
-            Sure. That sounds great!
+            Sure.
             <Page>Cool. They come in medium or large. Whaddia want?
                 <Choice>Medium is fine...</Choice>
                 <Choice>Large!</Choice>
+                <Choice>Sure.</Choice>
+                <Page>Here ya go</Page>
             </Page>
         </Choice>
         <Choice>
             I'll pass.
             <Page>
-                Then screw off!
+                Then go away!
             </Page>
         </Choice>
     </Page>

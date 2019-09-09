@@ -9,18 +9,6 @@ from .graphics import TextBox, TextBoxPage
 from .utilities import get_asset_path
 
 
-def get_test_textbox():
-    page1 = TextBoxPage(raw_text="Hello")
-    page2 = TextBoxPage(
-        raw_text="This is lots of text so that wrapping can be tested." + \
-        " It's pretty great if you ask me. Soon I'll implement files that can " + \
-        "do this same stuff that I'm doing as code, so that'll be great. Trace " + \
-        "will probably have to learn some XML, though, and that might be " + \
-        "unfortunately frustrating for him. Who knows, though.",
-        characters_per_second=40, text_margin=(16,8)
-    )
-    return TextBox(pages=[page1, page2])
-
 def get_old_man():
     old_man = pygame.Surface((48,64))
     old_man.fill((0,255,0))
@@ -33,14 +21,9 @@ class OldMan(GameObject):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.has_talked = False
 
     def chat(self, gamestate):
-        if self.has_talked:
-            return TextBox(pagefile=get_asset_path('example_dialog.xml'))
-        else:
-            self.has_talked = True
-            return get_test_textbox()
+        return TextBox(pagefile=get_asset_path('example_dialog.xml'))
 
 
 class GameState():
@@ -102,6 +85,13 @@ class GameState():
     def step(self):
         self.step_delta = self.clock.tick(constants.FPS)
         self.process_events()
+        # TODO: create a CutScene class that can be used to animate objects in
+        #       the level, artificially move objects in the level, or call
+        #       arbitrary callback methods on objects in the level, all while
+        #       also managing the textboxes on screen
+        # TODO: Two classes of cutscene: one that just manages the textbox and
+        #       callbacks, and one that does that and also takes control of
+        #       animation and movement of specific objects
         if self.mode == GameModes.PLAYING:
             self.dynamic_objects.update(self)
         elif self.textbox:

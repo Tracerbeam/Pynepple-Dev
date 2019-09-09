@@ -82,10 +82,9 @@ class Animator():
 
 
 class TextBoxPage():
-    # TODO: text_margin should be a TextBox attribute...
     def __init__(
         self, raw_text=None, characters_per_second=30, text_color=(255,255,255),
-        text_margin=(0,0), line_separation=0, text_size=14
+        line_separation=0, text_size=14
     ):
         self.text = ''
         if raw_text != None:
@@ -93,12 +92,11 @@ class TextBoxPage():
         self.cps = characters_per_second
         self.font = freetype.SysFont('', text_size)
         self.text_color = text_color
-        self.text_margin = text_margin
         self.line_separation = line_separation
 
 
 class TextBox():
-    SIZE = (480, 64)
+    SIZE = (480, 80)
     BACKGROUND_COLOR = (0, 0, 110)
     LOCATION = (16, 192)
     RESTING_PERIOD = 200
@@ -110,18 +108,19 @@ class TextBox():
             return func(self, *args, **kwargs)
         return wrapper
 
-    def __init__(self, pages=[], pagefile=None):
+    def __init__(self, pages=[], pagefile=None, text_margin=(0,0)):
         self.pages = pages
         if pagefile:
             self.pages.extend(self.parse_pagefile(pagefile))
         self.current_page = 0
         self.time_displaying_page = 0
         self.text = ""
+        self.text_margin = text_margin
         self.background = pygame.Surface(self.SIZE)
 
     # TODO: add support for multiple choice 
     def parse_pagefile(self, pagefile):
-        # TODO: add support for assigning
+        # TODO: add support for adding attributes to each page
         root = ET.parse(pagefile).getroot()
         assert root.tag == "DialogBox"
 
@@ -142,7 +141,7 @@ class TextBox():
     def draw(self, display):
         self.background.fill(self.BACKGROUND_COLOR)
         page = self.pages[self.current_page]
-        x, y = page.text_margin
+        x, y = self.text_margin
         leftmost, rightmost = x, self.background.get_width() - x
         bottommost = self.background.get_height() - y
         space = page.font.get_rect(' ')
