@@ -29,6 +29,7 @@ class GameState():
     """General purpose manager for the game state."""
 
     SCREEN_SIZE = (512, 288)
+    SCROLL_MARGIN = 80
     CONTROLS = {
         'chat_next': pygame.K_e
     }
@@ -81,6 +82,30 @@ class GameState():
                     self.mode = GameModes.CINEMATIC
                     self.textbox = event.gameobject.chat(self)
 
+    def adjust_camera_for_player(self):
+        screen_left, screen_top = self.all_objects.offset
+        margin_left = screen_left + self.SCROLL_MARGIN
+        margin_right = screen_left + self.SCREEN_SIZE[0] - self.SCROLL_MARGIN
+        margin_top = screen_top + self.SCROLL_MARGIN
+        margin_bottom = screen_top + self.SCREEN_SIZE[1] - self.SCROLL_MARGIN
+
+        scroll_x = 0
+        if self.player.rect.right > margin_right:
+            scroll_x = self.player.rect.right - margin_right
+        elif self.player.rect.left < margin_left:
+            scroll_x = self.player.rect.left - margin_left
+
+        scroll_y = 0
+        if self.player.rect.top < margin_top:
+            scroll_y = self.player.rect.top - margin_top
+        elif self.player.rect.bottom > margin_bottom:
+            scroll_y = self.player.rect.bottom - margin_bottom
+
+        self.scroll_camera(scroll_x, scroll_y)
+
+    def scroll_camera(self, x, y):
+        self.all_objects.scroll(x, y)
+
     def step(self):
         self.step_delta = self.clock.tick(constants.FPS)
         self.process_events()
@@ -93,6 +118,7 @@ class GameState():
         #       animation and movement of specific objects
         if self.mode == GameModes.PLAYING:
             self.dynamic_objects.update(self)
+            self.adjust_camera_for_player()
         elif self.textbox:
             self.textbox.update(self)
         self.draw()

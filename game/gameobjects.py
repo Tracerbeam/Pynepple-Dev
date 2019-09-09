@@ -6,21 +6,57 @@ from .graphics import Animator
 from .utilities import get_asset_path
 
 
-# TODO: create a group that can have a scroll state
 class GameGroup(pygame.sprite.Group):
     def __init__(self, *args):
         super().__init__(*args)
+        self.offset = Vector(0, 0)
+
+    def draw(self, surface):
+        for sprite in self.sprites_by_bottom_edge_height():
+            offset = (sprite.rect.x - self.offset.x, sprite.rect.y - self.offset.y)
+            surface.blit(sprite.image, offset)
 
     def select_rect(self, rectname):
         for sprite in self.sprites():
             if isinstance(sprite, GameObject) and rectname in sprite.rect_options:
                 sprite.select_rect(rectname)
 
+    def scroll(self, x, y):
+        self.offset += Vector(x, y)
+
+    def sprites_by_bottom_edge_height(self):
+        return sorted(self.sprites(), key=lambda x: x.rect.bottom)
+
+
+class VectorIterator():
+    def __init__(self, vector):
+        self.vector = vector
+        self.index = -1
+
+    def __next__(self):
+        self.index += 1
+        if self.index == 0:
+            return self.vector.x
+        elif self.index == 1:
+            return self.vector.y
+        else:
+            raise StopIteration
+
 
 class Vector():
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
+    def __add__(self, other):
+        if not isinstance(other, type(self)):
+            raise ValueError("can only add vectors to other vectors")
+
+        return type(self)(self.x + other.x, self.y + other.y)
+
+    def __iter__(self):
+        return VectorIterator(self)
 
 
 # TODO: it really would be better if you did the select_rect stuff in a 
