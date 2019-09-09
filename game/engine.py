@@ -31,7 +31,10 @@ class GameState():
     SCREEN_SIZE = (512, 288)
     SCROLL_MARGIN = 80
     CONTROLS = {
-        'chat_next': pygame.K_e
+        'chat_next': pygame.K_e,
+        'chat_choose': pygame.K_q,
+        'chat_choice_left': pygame.K_a,
+        'chat_choice_right': pygame.K_d
     }
 
     def __init__(self):
@@ -67,15 +70,22 @@ class GameState():
                 if event.key == pygame.K_q and ctrl_mod:
                     pygame.event.post(pygame.event.Event(pygame.QUIT))
 
-                if self.mode == GameModes.CINEMATIC:
-                    if event.key == self.CONTROLS['chat_next'] and self.textbox:
+                if self.mode == GameModes.CINEMATIC and self.textbox:
+                    if self.textbox.is_choosing():
+                        if event.key == self.CONTROLS['chat_choose']:
+                            self.textbox.make_choice()
+                        elif event.key == self.CONTROLS['chat_choice_left']:
+                            self.textbox.prev_choice()
+                        elif event.key == self.CONTROLS['chat_choice_right']:
+                            self.textbox.next_choice()
+                    if event.key == self.CONTROLS['chat_next']:
                         if self.textbox.finished():
                             self.textbox = None
                             self.last_chatted = pygame.time.get_ticks()
                             self.mode = GameModes.PLAYING
                         elif not self.textbox.showing_full_page():
                             self.textbox.show_full_page()
-                        else:
+                        elif not self.textbox.is_choosing():
                             self.textbox.next_page()
             if self.mode == GameModes.PLAYING:
                 if event.type == constants.INTERACTION_CHAT and self.can_chat():
