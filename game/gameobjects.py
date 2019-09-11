@@ -176,6 +176,8 @@ class Player(GameObject):
 
         self.orientation = Directions.SOUTH
         self.velocity = Vector(0, 0)
+        self.chat_cooldown = 180
+        self.last_chatted = 0
 
     def update(self, gamestate):
         self.calculate_velocity(gamestate.step_delta)
@@ -188,6 +190,9 @@ class Player(GameObject):
             self.check_for_interactions(gamestate.interactable_objects)
         self.select_animation()
         self.image = self.animator.advance_animation(gamestate.step_delta)
+
+    def can_chat(self):
+        return pygame.time.get_ticks() - self.last_chatted > self.chat_cooldown
 
     def calculate_velocity(self, ms_delta):
         pressed_keys = pygame.key.get_pressed()
@@ -205,6 +210,9 @@ class Player(GameObject):
         self.velocity.y = (y_velocity * ms_delta) / 1000
 
     def check_for_interactions(self, interactable):
+        if not self.can_chat():
+            return
+
         interaction_rect = self.get_interaction_rect()
         old_rect = self.rect
         self.rect = interaction_rect

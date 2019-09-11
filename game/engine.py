@@ -53,13 +53,6 @@ class GameState():
         )
         self.mode = GameModes.PLAYING
         self.textbox = None
-        self.chat_cooldown = 180
-        self.last_chatted = 0
-
-    # TODO: this 'can_chat' business needs to be moved to the player model in the
-    #       more general form of a 'can_interact' check that runs in 'update'
-    def can_chat(self):
-        return pygame.time.get_ticks() - self.last_chatted > self.chat_cooldown
 
     def process_events(self):
         for event in pygame.event.get():
@@ -81,14 +74,14 @@ class GameState():
                     if event.key == self.CONTROLS['chat_next']:
                         if self.textbox.finished():
                             self.textbox = None
-                            self.last_chatted = pygame.time.get_ticks()
+                            self.player.last_chatted = pygame.time.get_ticks()
                             self.mode = GameModes.PLAYING
                         elif not self.textbox.showing_full_page():
                             self.textbox.show_full_page()
                         elif not self.textbox.is_choosing():
                             self.textbox.next_page()
             if self.mode == GameModes.PLAYING:
-                if event.type == constants.INTERACTION_CHAT and self.can_chat():
+                if event.type == constants.INTERACTION_CHAT:
                     self.mode = GameModes.CINEMATIC
                     self.textbox = event.gameobject.chat(self)
 
