@@ -248,6 +248,7 @@ class TextBox():
     def get_minimum_time_to_show_full_page(self):
         return len(self.pages[self.current_page].text) * self.get_current_cps() * 1000
 
+    # TODO: if the page had hooks to run based on the decision, return them
     def make_choice(self):
         page = self.pages[self.current_page]
         if not self.showing_last_page():

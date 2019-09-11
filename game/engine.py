@@ -25,6 +25,7 @@ class OldMan(GameObject):
         return TextBox(pagefile=get_asset_path('example_dialog.xml'))
 
 
+# TODO: add save files
 class GameState():
     """General purpose manager for the game state."""
 
@@ -43,6 +44,7 @@ class GameState():
         self.step_delta = 0
         self.player = Player(100, 100)
         old_man = OldMan(400, 10)
+        # TODO: create Levels, and use them to initialize the gamestate
         self.interactable_objects = GameGroup(old_man)
         self.dynamic_objects = GameGroup(self.player)
         self.static_objects = GameGroup(GameObject(300, 130), old_man)
@@ -63,6 +65,8 @@ class GameState():
                 if event.key == pygame.K_q and ctrl_mod:
                     pygame.event.post(pygame.event.Event(pygame.QUIT))
 
+                # TODO: the cutscene class should be handling most of this textbox
+                #       control, and by most I mean all
                 if self.mode == GameModes.CINEMATIC and self.textbox:
                     if self.textbox.is_choosing():
                         if event.key == self.CONTROLS['chat_choose']:
