@@ -4,6 +4,7 @@ import pygame
 
 from . import constants
 from .constants import GameModes
+from .cutscenes import CutScene
 from .gameobjects import Player, GameObject, GameGroup
 from .graphics import TextBox, TextBoxPage
 from .utilities import get_asset_path
@@ -22,7 +23,7 @@ class OldMan(GameObject):
         super().__init__(*args, **kwargs)
 
     def chat(self, gamestate):
-        return TextBox(pagefile=get_asset_path('example_dialog.xml'))
+        return TextBox(pagefile=get_asset_path('short_dialog.xml'))
 
 
 # TODO: add save files
@@ -31,12 +32,6 @@ class GameState():
 
     SCREEN_SIZE = (512, 288)
     SCROLL_MARGIN = 80
-    CONTROLS = {
-        'chat_next': pygame.K_e,
-        'chat_choose': pygame.K_q,
-        'chat_choice_left': pygame.K_a,
-        'chat_choice_right': pygame.K_d
-    }
 
     def __init__(self):
         self.display = pygame.display.set_mode(self.SCREEN_SIZE)
@@ -54,7 +49,7 @@ class GameState():
             self.interactable_objects
         )
         self.mode = GameModes.PLAYING
-        self.textbox = None
+        self.cutscene = None
         self.keydowns = set()
 
     def process_events(self):
@@ -67,30 +62,12 @@ class GameState():
                 ctrl_mod = (event.mod & pygame.KMOD_CTRL) > 0
                 if event.key == pygame.K_q and ctrl_mod:
                     pygame.event.post(pygame.event.Event(pygame.QUIT))
-
-                # TODO: the cutscene class should be handling most of this textbox
-                #       control, and by most I mean all
-                if self.mode == GameModes.CINEMATIC and self.textbox:
-                    if self.textbox.is_choosing():
-                        if event.key == self.CONTROLS['chat_choose']:
-                            self.textbox.make_choice()
-                        elif event.key == self.CONTROLS['chat_choice_left']:
-                            self.textbox.prev_choice()
-                        elif event.key == self.CONTROLS['chat_choice_right']:
-                            self.textbox.next_choice()
-                    if event.key == self.CONTROLS['chat_next']:
-                        if self.textbox.finished():
-                            self.textbox = None
-                            self.player.last_chatted = pygame.time.get_ticks()
-                            self.mode = GameModes.PLAYING
-                        elif not self.textbox.showing_full_page():
-                            self.textbox.show_full_page()
-                        elif not self.textbox.is_choosing():
-                            self.textbox.next_page()
             if self.mode == GameModes.PLAYING:
                 if event.type == constants.INTERACTION_CHAT:
                     self.mode = GameModes.CINEMATIC
-                    self.textbox = event.gameobject.chat(self)
+                    self.cutscene = CutScene(cue_list=['chat'])
+                    self.cutscene.edit_cue('chat', 0, textbox=event.gameobject.chat(self))
+                    self.cutscene.start()
 
     def adjust_camera_for_player(self):
         screen_left, screen_top = self.all_objects.offset
@@ -119,24 +96,21 @@ class GameState():
     def step(self):
         self.step_delta = self.clock.tick(constants.FPS)
         self.process_events()
-        # TODO: create a CutScene class that can be used to animate objects in
-        #       the level, artificially move objects in the level, or call
-        #       arbitrary callback methods on objects in the level, all while
-        #       also managing the textboxes on screen
-        # TODO: Two classes of cutscene: one that just manages the textbox and
-        #       callbacks, and one that does that and also takes control of
-        #       animation and movement of specific objects
         if self.mode == GameModes.PLAYING:
             self.dynamic_objects.update(self)
             self.adjust_camera_for_player()
-        elif self.textbox:
-            self.textbox.update(self)
+        elif self.mode == GameModes.CINEMATIC:
+            self.cutscene.update(self)
+            if self.cutscene.finished:
+                self.cutscene = None
+                self.mode = GameModes.PLAYING
+                self.player.last_chatted = pygame.time.get_ticks()
         self.draw()
         return self.step_delta
 
     def draw(self):
         self.display.fill((128, 128, 155))
         self.all_objects.draw(self.display)
-        if self.textbox:
-            self.textbox.draw(self.display)
+        if self.cutscene:
+            self.cutscene.draw(self.display)
         pygame.display.flip()
