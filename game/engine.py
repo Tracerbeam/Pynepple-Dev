@@ -47,7 +47,7 @@ class GameState():
         # TODO: create Levels, and use them to initialize the gamestate
         self.interactable_objects = GameGroup(old_man)
         self.dynamic_objects = GameGroup(self.player)
-        self.static_objects = GameGroup(GameObject(300, 130), old_man)
+        self.static_objects = GameGroup(old_man)
         self.all_objects = GameGroup(
             self.dynamic_objects,
             self.static_objects,
@@ -55,12 +55,15 @@ class GameState():
         )
         self.mode = GameModes.PLAYING
         self.textbox = None
+        self.keydowns = set()
 
     def process_events(self):
+        self.keydowns.clear()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
             if event.type == pygame.KEYDOWN:
+                self.keydowns.add(event.key)
                 ctrl_mod = (event.mod & pygame.KMOD_CTRL) > 0
                 if event.key == pygame.K_q and ctrl_mod:
                     pygame.event.post(pygame.event.Event(pygame.QUIT))
