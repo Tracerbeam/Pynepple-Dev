@@ -9,14 +9,17 @@ class CutSceneCue():
         self.period = 0
         self.textbox = None
         self.autocontinue = False
+        self.hooks = dict()
 
-    def update(self, period=None, textbox=None, autocontinue=None):
+    def update(self, period=None, textbox=None, autocontinue=None, hooks=None):
         if textbox is not None:
             self.textbox = textbox
         if period is not None:
             self.period = period
         if autocontinue is not None:
             self.autocontinue = autocontinue
+        if hooks is not None:
+            self.hooks = hooks
 
 class CutScene():
     CONTROLS = {
@@ -110,6 +113,11 @@ class CutScene():
                     cue.textbox.show_full_page()
                 elif not cue.textbox.is_choosing() and not cue.textbox.finished():
                     cue.textbox.next_page()
+
+        for actor_name, hooks in cue.hooks.items():
+            for actor in self.actors[actor_name]:
+                for hook_method, args, kwargs in hooks:
+                    actor.__getattribute__('hook_' + hook_method)(*args, **kwargs)
 
     def draw(self, display):
         cue = self.get_cue()

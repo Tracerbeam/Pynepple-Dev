@@ -25,6 +25,9 @@ class OldMan(GameObject):
     def chat(self, gamestate):
         return TextBox(pagefile=get_asset_path('short_dialog.xml'))
 
+    def hook_test(self, arg1, arg2, um='um'):
+        print('arg1:', arg1, 'arg2:', arg2, '...', um)
+
 
 # TODO: add save files
 class GameState():
