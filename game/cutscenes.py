@@ -41,14 +41,12 @@ class CutScene():
         root = ET.parse(cutscene_file).getroot()
         # TODO
 
-    def add_actor(self, actor_name, gameobjects):
-        if type(gameobjects) is not list:
-            gameobjects = [ gameobjects ]
+    def add_actor(self, actor_name, *gameobjects):
+        gameobjects = set(gameobjects)
         if actor_name not in self.actors:
             self.actors[actor_name] = gameobjects
         else:
-            existing_actors = set(self.actors[actor_name])
-            self.actors[actor_name].extend(set(gameobjects) - existing_actors)
+            self.actors[actor_name] = self.actors[actor_name].union(gameobjects)
 
     def remove_actor(self, actor_name):
         if actor_name in self.actors:
