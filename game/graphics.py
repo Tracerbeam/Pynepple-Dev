@@ -148,7 +148,7 @@ class TextBox():
     def __init__(self, pages=[], pagefile=None, text_margin=None):
         self.pages = pages
         if pagefile:
-            self.pages.extend(self.parse_pagefile(pagefile))
+            self.pages = self.parse_pagefile(pagefile)
         self.current_page = 0
         self.time_displaying_page = 0
         self.text = ""
