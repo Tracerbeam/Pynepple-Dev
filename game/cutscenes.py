@@ -63,7 +63,6 @@ class CutScene():
     def get_cue(self):
         cue = None
         if self.current_cue is not None:
-            print(self.current_cue, self.time_playing_cue)
             cue = self.cues[self.cue_list[self.current_cue]]
         return cue
 
@@ -77,8 +76,6 @@ class CutScene():
         self.finished = False
 
     def update(self, gamestate):
-        # TODO: add the ability to add programmatic hooks to cues, that
-        #       have access to the gamestate
         cue = self.get_cue()
         self.time_playing_cue += gamestate.step_delta
 
