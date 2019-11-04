@@ -67,7 +67,7 @@ class Animator():
             raise ValueError("'{}' is not an existing animation".format(animation))
 
         # unless the current animation was played with the reset flag set to False,
-        # we should start playing the animation over from the beginning
+        # we should start playing the requested animation from the beginning
         if not (self.current_animation == animation and not reset):
             self.time_elapsed = 0
         self.current_animation = animation

@@ -10,25 +10,6 @@ from .graphics import TextBox, TextBoxPage
 from .utilities import get_asset_path
 
 
-def get_old_man():
-    old_man = pygame.Surface((48,64))
-    old_man.fill((0,255,0))
-    return old_man
-
-class OldMan(GameObject):
-    image = get_old_man()
-    available_interactions = { constants.INTERACTION_CHAT }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def chat(self, gamestate):
-        return TextBox(pagefile=get_asset_path('short_dialog.xml'))
-
-    def hook_test(self, arg1, arg2, um='um'):
-        print('arg1:', arg1, 'arg2:', arg2, '...', um)
-
-
 # TODO: add save files
 class GameState():
     """General purpose manager for the game state."""
@@ -41,11 +22,10 @@ class GameState():
         self.clock = pygame.time.Clock()
         self.step_delta = 0
         self.player = Player(100, 100)
-        old_man = OldMan(400, 10)
         # TODO: create Levels, and use them to initialize the gamestate
-        self.interactable_objects = GameGroup(old_man)
+        self.interactable_objects = GameGroup()
         self.dynamic_objects = GameGroup(self.player)
-        self.static_objects = GameGroup(old_man)
+        self.static_objects = GameGroup()
         self.all_objects = GameGroup(
             self.dynamic_objects,
             self.static_objects,

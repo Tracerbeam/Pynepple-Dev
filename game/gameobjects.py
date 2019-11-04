@@ -75,6 +75,8 @@ class GameObject(pygame.sprite.Sprite):
     def __init__(self, startx, starty):
         super().__init__()
 
+        self.animator = None
+        self.children = GameGroup()
         if self.spritesheet:
             self.animator = Animator(
                 self.animations,
@@ -92,10 +94,10 @@ class GameObject(pygame.sprite.Sprite):
         self.rect_options = self.default_rect_options.copy()
         self.current_rect = 'renderer'
         if 'renderer' not in self.rect_options:
-            self.rect_options = self.rect_options.copy()
             self.rect_options['renderer'] = pygame.Rect((0, 0), self.rect.size)
+        if 'base' not in self.rect_options:
+            self.rect_options['base'] = pygame.Rect((0, 0), self.rect.size)
         if 'collider' not in self.rect_options:
-            self.rect_options = self.rect_options.copy()
             coll_h = self.base_height
             if not coll_h:
                 coll_h = (self.rect.height * 1) // 4
@@ -104,6 +106,62 @@ class GameObject(pygame.sprite.Sprite):
                 (self.rect.width, coll_h)
             )
 
+    def get_render_bounding_box(self):
+        """
+        Returns a Rect whose location and size is adjusted to contain the base
+        sprite and all of its children.
+        """
+        most_top = 0
+        most_bottom = self.rect.height
+        most_left = 0
+        most_right = self.rect.width
+
+        for child in self.children.sprites():
+            crect = child.rect
+            if crect.left < most_left:
+                most_left = crect.left
+            if crect.top < most_top:
+                most_top = crect.top
+            if crect.right > most_right:
+                most_right = crect.right
+            if crect.bottom > most_bottom:
+                most_bottom = crect.bottom
+
+        bounding_location = (most_left, most_top)
+        bounding_size = (most_right - most_left, most_bottom - most_top)
+
+        return pygame.Rect(bounding_location, bounding_size)
+
+    def prepare_for_render(self):
+        bounding_box = self.get_render_bounding_box()
+        self.rect_options['renderer'] = bounding_box
+
+        # Compile the images of the base object and the child objects into one
+        # single image.
+        # Start by creating a transparent canvas the size of the bounding box.
+        compiled_image = pygame.Surface(bounding_box.size, flags=pygame.SRCALPHA)
+        compiled_image.fill((0,0,0,0))
+        # Then draw the base image. Note that the location of the bounding box
+        # will be relative to the location of the base object, so we draw the
+        # base image at an offset so that it is effectively rendered at (0,0).
+        compiled_image.blit(self.image, (-bounding_box.x, -bounding_box.y))
+        # We can use the scroll feature of GameGroup to draw the child objects
+        # at an offset, as well.
+        sprites_to_compile = self.children.copy()
+        sprites_to_compile.scroll(*bounding_box.topleft)
+        sprites_to_compile.draw(compiled_image)
+
+        # Set up the sprite so it's ready to be drawn to the screen.
+        self.image = compiled_image
+        self.select_rect('renderer')
+
+    def update(self, gamestate):
+        self.select_rect('base')
+        if self.animator:
+            self.image = self.animator.advance_animation(gamestate.step_delta)
+        self.children.update(gamestate)
+        self.prepare_for_render()
+
     def get_fallback_image(self):
         fallback_image = pygame.Surface((128, 128))
         fallback_image.fill((255, 255, 255))
@@ -111,6 +169,9 @@ class GameObject(pygame.sprite.Sprite):
 
     def select_rect(self, target):
         """Chooses which rectangle to assign the sprite."""
+        if target == self.current_rect:
+            pass
+
         new_offset = self.rect_options[target]
         current_offset = self.rect_options[self.current_rect]
         # undo current offset
@@ -165,8 +226,8 @@ class Player(GameObject):
         'walking_right': [13, 2, 14, 2]
     }
     default_rect_options = {
-        # Used for drawing the sprite to the screen
-        'renderer': pygame.Rect(0, 0, 64, 64),
+        # Tells the game what the size of the player object is
+        'base': pygame.Rect(0, 0, 64, 64),
         # Used when walking into objects
         'foot_collider': pygame.Rect(18, 54, 28, 10)
     }
@@ -189,7 +250,8 @@ class Player(GameObject):
         if pygame.key.get_pressed()[self.CONTROLS['interact']]:
             self.check_for_interactions(gamestate.interactable_objects)
         self.select_animation()
-        self.image = self.animator.advance_animation(gamestate.step_delta)
+
+        super().update(gamestate)
 
     def can_chat(self):
         return pygame.time.get_ticks() - self.last_chatted > self.chat_cooldown
