@@ -184,6 +184,18 @@ class GameObject(pygame.sprite.Sprite):
         self.current_rect = target
 
 
+class Pointer(GameObject):
+    spritesheet = get_asset_path("pointer_sprites.png")
+    spritesheet_frame_map = (
+        (0, 0, 32, 32),
+        (32, 0, 32, 32),
+        (64, 0, 32, 32),
+    )
+    animations = {
+        "spinning": [1,2,3]
+    }
+
+
 class Player(GameObject):
     SPEED = 32 * 6 # pixels per second per axis
     INTERACTION_REACH = 30

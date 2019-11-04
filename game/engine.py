@@ -5,7 +5,7 @@ import pygame
 from . import constants
 from .constants import GameModes
 from .cutscenes import CutScene
-from .gameobjects import Player, GameObject, GameGroup
+from .gameobjects import Player, GameObject, GameGroup, Pointer
 from .graphics import TextBox, TextBoxPage
 from .utilities import get_asset_path
 
@@ -21,7 +21,9 @@ class GameState():
         self.display = pygame.display.set_mode(self.SCREEN_SIZE)
         self.clock = pygame.time.Clock()
         self.step_delta = 0
+        test_pointer = Pointer(16,-50)
         self.player = Player(100, 100)
+        self.player.children.add(test_pointer)
         # TODO: create Levels, and use them to initialize the gamestate
         self.interactable_objects = GameGroup()
         self.dynamic_objects = GameGroup(self.player)
