@@ -206,7 +206,7 @@ class Player(GameObject):
         'down': pygame.K_s,
         'interact': pygame.K_e
     }
-    spritesheet = get_asset_path("mr_pynepple_64.png")
+    spritesheet = get_asset_path("mr_pynepple.png")
     spritesheet_frame_map = (
         (0, 0, 64, 64),
         (64, 0, 64, 64),
