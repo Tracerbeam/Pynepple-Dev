@@ -1,5 +1,7 @@
 import pygame
 
+from contextlib import contextmanager
+
 from . import constants
 from .constants import Directions
 from .graphics import Animator
@@ -16,10 +18,15 @@ class GameGroup(pygame.sprite.Group):
             offset = (sprite.rect.x - self.offset.x, sprite.rect.y - self.offset.y)
             surface.blit(sprite.image, offset)
 
+    @contextmanager
     def select_rect(self, rectname):
+        prior_states = dict()
         for sprite in self.sprites():
-            if isinstance(sprite, GameObject) and rectname in sprite.rect_options:
-                sprite.select_rect(rectname)
+            prior_states[sprite] = sprite.current_rect
+            sprite.select_rect(rectname)
+        yield
+        for sprite, prior_rect in prior_states.items():
+            sprite.select_rect(prior_rect)
 
     def scroll(self, x, y):
         self.offset += Vector(x, y)
@@ -59,8 +66,6 @@ class Vector():
         return VectorIterator(self)
 
 
-# TODO: it really would be better if you did the select_rect stuff in a 
-#       context manager...
 class GameObject(pygame.sprite.Sprite):
     image = None
     # A set of offsets by which to adjust the sprite's rect in
@@ -256,9 +261,8 @@ class Player(GameObject):
         self.calculate_velocity(gamestate.step_delta)
         self.rect = self.rect.move(self.velocity.x, self.velocity.y)
         self.set_orientation(self.velocity.x, self.velocity.y)
-        gamestate.static_objects.select_rect('collider')
-        self.collide_with(gamestate.static_objects)
-        gamestate.static_objects.select_rect('renderer')
+        with gamestate.static_objects.select_rect('collider'):
+            self.collide_with(gamestate.static_objects)
         if pygame.key.get_pressed()[self.CONTROLS['interact']]:
             self.check_for_interactions(gamestate.interactable_objects)
         self.select_animation()
@@ -358,7 +362,6 @@ class Player(GameObject):
                     self.rect.left = brect.right
                 else: 
                     self.rect.right = brect.left
-        self.select_rect('renderer')
 
     def get_interaction_rect(self):
         """
