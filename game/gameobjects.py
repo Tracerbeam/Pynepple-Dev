@@ -191,6 +191,10 @@ class GameObject(pygame.sprite.Sprite):
         self.current_rect = target
 
 
+class Wall(GameObject):
+    fallback_image_color = (0, 255, 0)
+
+
 class Pointer(GameObject):
     spritesheet = get_asset_path("pointer_sprites.png")
     spritesheet_frame_map = (
