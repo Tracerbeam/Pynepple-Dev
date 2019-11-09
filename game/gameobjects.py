@@ -68,6 +68,8 @@ class Vector():
 
 class GameObject(pygame.sprite.Sprite):
     image = None
+    fallback_image_size = (128, 128)
+    fallback_image_color = (255, 255, 255)
     # A set of offsets by which to adjust the sprite's rect in
     # various situations. For example, collisions for various circumstances
     # might be calculated at different locations on the sprite.
@@ -168,8 +170,8 @@ class GameObject(pygame.sprite.Sprite):
         self.prepare_for_render()
 
     def get_fallback_image(self):
-        fallback_image = pygame.Surface((128, 128))
-        fallback_image.fill((255, 255, 255))
+        fallback_image = pygame.Surface(self.fallback_image_size)
+        fallback_image.fill(self.fallback_image_color)
         return fallback_image
 
     def select_rect(self, target):
