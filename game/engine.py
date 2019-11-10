@@ -97,6 +97,6 @@ class GameState():
     def draw(self):
         self.display.fill((128, 128, 155))
         self.all_objects.draw(self.display)
-        if self.cutscene:
+        if self.mode == GameModes.CINEMATIC:
             self.cutscene.draw(self.display)
         pygame.display.flip()

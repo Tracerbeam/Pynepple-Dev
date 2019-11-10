@@ -79,6 +79,9 @@ class GameObject(pygame.sprite.Sprite):
     # number of pixels of the sprite that account for the 'ground' it's standing on
     base_height = None
 
+    can_move = False
+    can_interact = False
+
     def __init__(self, startx, starty):
         super().__init__()
 
@@ -254,6 +257,7 @@ class Player(GameObject):
         # Used when walking into objects
         'foot_collider': pygame.Rect(18, 54, 28, 10)
     }
+    can_move = True
 
     def __init__(self, startx, starty):
         super().__init__(startx, starty)
@@ -270,7 +274,8 @@ class Player(GameObject):
         with gamestate.static_objects.select_rect('collider'):
             self.collide_with(gamestate.static_objects)
         if pygame.key.get_pressed()[self.CONTROLS['interact']]:
-            self.check_for_interactions(gamestate.interactable_objects)
+            with gamestate.interactable_objects.select_rect('base'):
+                self.check_for_interactions(gamestate.interactable_objects)
         self.select_animation()
 
         super().update(gamestate)
