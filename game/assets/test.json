@@ -1,0 +1,4 @@
+{ "gameobjects": [
+    { "class": "Wall", "location": [300, 50] },
+    { "class": "Player", "location": [0, 0] }
+] }

@@ -8,6 +8,7 @@ from .cutscenes import CutScene
 from .gameobjects import Player, GameObject, GameGroup, Pointer, Wall
 from .graphics import TextBox, TextBoxPage
 from .utilities import get_asset_path
+from .levels import Level
 
 
 # TODO: add save files
@@ -21,22 +22,35 @@ class GameState():
         self.display = pygame.display.set_mode(self.SCREEN_SIZE)
         self.clock = pygame.time.Clock()
         self.step_delta = 0
-        test_wall = Wall(300, 100)
-        test_pointer = Pointer(16,-50)
-        self.player = Player(100, 100)
-        self.player.children.add(test_pointer)
-        # TODO: create Levels, and use them to initialize the gamestate
-        self.interactable_objects = GameGroup()
-        self.dynamic_objects = GameGroup(self.player)
-        self.static_objects = GameGroup(test_wall)
-        self.all_objects = GameGroup(
-            self.dynamic_objects,
-            self.static_objects,
-            self.interactable_objects
-        )
         self.mode = GameModes.PLAYING
         self.cutscene = None
         self.keydowns = set()
+
+        self.player = None
+        self.interactable_objects = GameGroup()
+        self.dynamic_objects = GameGroup()
+        self.static_objects = GameGroup()
+        self.all_objects = GameGroup()
+        self.load_level(Level.load_from_file('test.json'))
+
+    def clear_gameobjects(self):
+        self.dynamic_objects.empty()
+        self.static_objects.empty()
+        self.interactable_objects.empty()
+        self.all_objects.empty()
+
+    def load_level(self, level):
+        self.clear_gameobjects()
+        for gameobject in level.gameobjects:
+            if isinstance(gameobject, Player):
+                self.player = gameobject
+            if gameobject.can_interact:
+                self.interactable_objects.add(gameobject)
+            if gameobject.can_move:
+                self.dynamic_objects.add(gameobject)
+            else:
+                self.static_objects.add(gameobject)
+            self.all_objects.add(gameobject)
 
     def process_events(self):
         self.keydowns.clear()
