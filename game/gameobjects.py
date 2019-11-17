@@ -4,7 +4,7 @@ from contextlib import contextmanager
 
 from . import constants
 from .constants import Directions
-from .graphics import Animator
+from .graphics import Animator, TextBox
 from .utilities import get_asset_path
 
 
@@ -195,7 +195,35 @@ class GameObject(pygame.sprite.Sprite):
 
 
 class Wall(GameObject):
-    image = pygame.image.load(get_asset_path ("Tree.png"))
+    image = pygame.image.load(get_asset_path("Tree.png"))
+
+
+# TODO: factor out the talking logic into a sort of cutscene generator component
+class Sign(GameObject):
+    image = pygame.image.load(get_asset_path("Hidden Bush.png"))
+    default_dialogue = get_asset_path('fallback_dialogue.xml')
+    can_interact = True
+    available_interactions = { constants.INTERACTION_CHAT }
+
+    def __init__(self, startx, starty, dialoguefile=None):
+        super().__init__(startx, starty)
+
+        if not dialoguefile:
+            dialoguefile = self.default_dialogue
+        self.chatbox = TextBox(pagefile=dialoguefile)
+
+    def chat(self, gamestate):
+        return self.chatbox
+
+
+class KillFace(Sign):
+    spritesheet = get_asset_path("Rodger Killface Log.png")
+    spritesheet_frame_map = (
+        (0, 0, 64, 64),
+        (0, 64, 64, 64)
+    )
+    animations = { 'alcoholism': [1, 2] }
+    can_move = True
 
 
 class Pointer(GameObject):

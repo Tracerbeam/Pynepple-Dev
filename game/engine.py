@@ -42,6 +42,9 @@ class GameState():
     def load_level(self, level):
         self.clear_gameobjects()
         for gameobject in level.gameobjects:
+            # TODO: This needs a major rework: remove can_interact and can_move
+            #       and instead calculate the capabilities of each given object
+            #       based on the components they have.
             if isinstance(gameobject, Player):
                 self.player = gameobject
             if gameobject.can_interact:

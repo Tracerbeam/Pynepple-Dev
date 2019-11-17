@@ -1,8 +1,10 @@
 { "gameobjects": [
-    { "class": "Wall", "location": [300, 50] },
     { "class": "Player", "location": [0, 0] },
+    { "class": "Sign", "location": [50, 40] },
+    { "class": "KillFace", "location": [50, 80] },
+    { "class": "Wall", "location": [300, 50] },
     { "class": "Wall", "location": [100, 9] },
     { "class": "Wall", "location": [210, 150]},
-	{ "class": "Wall", "location": [25, 280]},
-	{ "class": "Wall", "location": [487, 300]}
+    { "class": "Wall", "location": [25, 280]},
+    { "class": "Wall", "location": [487, 300]}
 ] }
