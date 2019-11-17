@@ -195,7 +195,7 @@ class GameObject(pygame.sprite.Sprite):
 
 
 class Wall(GameObject):
-    fallback_image_color = (0, 255, 0)
+    image = pygame.image.load(get_asset_path ("Tree.png"))
 
 
 class Pointer(GameObject):
