@@ -217,6 +217,7 @@ class Sign(GameObject):
 
 
 class KillFace(Sign):
+    default_dialogue = get_asset_path('killface_dialog.xml')
     spritesheet = get_asset_path("Rodger Killface Log.png")
     spritesheet_frame_map = (
         (0, 0, 64, 64),

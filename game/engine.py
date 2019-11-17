@@ -5,7 +5,7 @@ import pygame
 from . import constants
 from .constants import GameModes
 from .cutscenes import CutScene
-from .gameobjects import Player, GameObject, GameGroup, Pointer, Wall
+from .gameobjects import Player, GameObject, GameGroup, Pointer, Wall, KillFace
 from .graphics import TextBox, TextBoxPage
 from .utilities import get_asset_path
 from .levels import Level
@@ -47,6 +47,8 @@ class GameState():
             #       based on the components they have.
             if isinstance(gameobject, Player):
                 self.player = gameobject
+            if isinstance(gameobject, KillFace):
+                self.static_objects.add(gameobject)
             if gameobject.can_interact:
                 self.interactable_objects.add(gameobject)
             if gameobject.can_move:
