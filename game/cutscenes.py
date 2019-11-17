@@ -24,7 +24,7 @@ class CutSceneCue():
 class CutScene():
     CONTROLS = {
         'chat_next': pygame.K_e,
-        'chat_choose': pygame.K_q,
+        'chat_choose': pygame.K_e,
         'chat_choice_left': pygame.K_a,
         'chat_choice_right': pygame.K_d,
         'cutscene_next': pygame.K_e
