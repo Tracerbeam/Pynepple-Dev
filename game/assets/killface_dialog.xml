@@ -1,0 +1,29 @@
+<DialogBox>
+ <Page> Well, howdy there pardner! Lovely day, ain't it? </Page>
+ <Page> Yeah... </Page>
+ <Page> So, how yall doon on this fine day? </Page>
+ <Page>
+  <Choice> Good </Choice>
+  <Choice> Great! </Choice>
+ <Page>That's nice. Say, what's your name pardner? </Page>
+ </Page>
+ <Page> That's a great name! </Page>
+ <Page> I like it. </Page>
+ <Page> My name's KillFace! </Page>
+ <Page cpm="50"> .  .  .  </Page>
+ <Page> Say, watcha got there pardner? </Page>
+ <Page> Well, butter my buns and call me a biscuit! </Page>
+ <Page> That right there is a court summons! </Page>
+ <Page> Well, son. You better mosey on over there right about now! The way to the castle is right over that there bridge... </Page>
+ <Page> There's only one little thing... I'll let you cross on over that bridge, but it's gonna cost yuh! </Page>
+ <Page> Let's saaayyyyy... 5G. </Page>
+ <Page>
+  <Choice> Sure
+   <Page> Great! Well, better get busy my friend. </Page>
+  </Choice>
+  <Choice> No
+   <Page> Ha! That's a good one. </Page>
+  </Choice>
+ </Page>
+ <Page> Well, you have a nice day now! G-bye! </Page>
+</DialogBox>
